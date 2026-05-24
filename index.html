@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SpecForge AI Agent</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="工作区导航">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">SF</div>
+          <div>
+            <strong>SpecForge</strong>
+            <span>AI Dev Agent</span>
+          </div>
+        </div>
+
+        <nav class="nav-list">
+          <button class="nav-item active" data-view="workspace" type="button">
+            <span aria-hidden="true">⌘</span>需求工作台
+          </button>
+          <button class="nav-item" data-view="agents" type="button">
+            <span aria-hidden="true">◇</span>Agent 协作
+          </button>
+          <button class="nav-item" data-view="artifacts" type="button">
+            <span aria-hidden="true">▣</span>评审产物
+          </button>
+          <button class="nav-item" data-view="metrics" type="button">
+            <span aria-hidden="true">↗</span>效率看板
+          </button>
+        </nav>
+
+        <section class="sidebar-panel">
+          <span class="label">当前项目</span>
+          <h2>订单履约优化</h2>
+          <p>PRD、接口文档与仓库上下文已纳入一次需求推理链。</p>
+          <div class="token-meter" aria-label="Token 使用量">
+            <span style="width: 62%"></span>
+          </div>
+          <small>1.86M / 3.00M tokens</small>
+        </section>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">面向中小型开发团队</p>
+            <h1>AI 需求拆解与代码生成 Agent</h1>
+          </div>
+          <div class="top-actions">
+            <button class="icon-button" id="themeToggle" type="button" title="切换主题" aria-label="切换主题">◐</button>
+            <button class="secondary-button" type="button">导入仓库</button>
+            <button class="primary-button" id="runAgent" type="button">运行拆解</button>
+          </div>
+        </header>
+
+        <section class="status-strip" aria-label="项目状态">
+          <article>
+            <span>需求结构化</span>
+            <strong id="structuredScore">82%</strong>
+          </article>
+          <article>
+            <span>预计节省周期</span>
+            <strong>54%</strong>
+          </article>
+          <article>
+            <span>生成产物</span>
+            <strong>17</strong>
+          </article>
+          <article>
+            <span>风险项</span>
+            <strong id="riskCount">4</strong>
+          </article>
+        </section>
+
+        <section class="view active" id="workspace">
+          <div class="grid two-col">
+            <section class="panel input-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">输入上下文</p>
+                  <h2>PRD 与工程资料</h2>
+                </div>
+                <button class="ghost-button" id="loadSample" type="button">填充示例</button>
+              </div>
+              <textarea id="prdInput" spellcheck="false">目标：将订单履约链路中的人工确认节点自动化。
+用户：运营专员、仓库主管、商家后台管理员。
+流程：订单支付后校验库存，生成拣货任务，异常订单进入人工处理池。
+约束：需兼容现有 order-service，库存接口 QPS 峰值 800，灰度发布。
+交付：接口设计、表结构、前端工作台、单元测试和接口测试。</textarea>
+              <div class="source-row">
+                <button class="source-chip active" type="button">PRD.md</button>
+                <button class="source-chip" type="button">OpenAPI.yaml</button>
+                <button class="source-chip" type="button">order-service</button>
+                <button class="source-chip" type="button">web-admin</button>
+              </div>
+            </section>
+
+            <section class="panel extraction-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">自动抽取</p>
+                  <h2>业务目标与依赖</h2>
+                </div>
+                <span class="badge ready">Ready</span>
+              </div>
+              <div class="entity-map" aria-label="实体依赖图">
+                <div class="node core">订单</div>
+                <div class="node">库存</div>
+                <div class="node">履约单</div>
+                <div class="node">异常池</div>
+                <div class="node">拣货任务</div>
+              </div>
+              <div class="insight-list" id="insights"></div>
+            </section>
+          </div>
+
+          <section class="panel workflow-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">长链推理</p>
+                <h2>从模糊需求到可评审实现</h2>
+              </div>
+              <span class="badge" id="workflowState">Idle</span>
+            </div>
+            <div class="timeline" id="timeline"></div>
+          </section>
+        </section>
+
+        <section class="view" id="agents">
+          <div class="agent-grid" id="agentGrid"></div>
+        </section>
+
+        <section class="view" id="artifacts">
+          <div class="artifact-layout">
+            <section class="panel artifact-tabs">
+              <button class="artifact-tab active" data-artifact="design" type="button">技术设计</button>
+              <button class="artifact-tab" data-artifact="api" type="button">API 设计</button>
+              <button class="artifact-tab" data-artifact="db" type="button">数据库表</button>
+              <button class="artifact-tab" data-artifact="code" type="button">代码骨架</button>
+              <button class="artifact-tab" data-artifact="test" type="button">测试报告</button>
+            </section>
+            <section class="panel artifact-preview">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">Review Ready</p>
+                  <h2 id="artifactTitle">技术设计文档</h2>
+                </div>
+                <button class="secondary-button" type="button">生成 PR</button>
+              </div>
+              <pre id="artifactContent"></pre>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="metrics">
+          <div class="grid metric-grid">
+            <section class="panel">
+              <p class="eyebrow">交付效率</p>
+              <h2>评估与初版开发周期</h2>
+              <div class="bar-chart" aria-label="周期对比">
+                <div><span style="height: 88%"></span><strong>传统</strong><em>10 天</em></div>
+                <div><span style="height: 42%"></span><strong>Agent</strong><em>4.6 天</em></div>
+              </div>
+            </section>
+            <section class="panel">
+              <p class="eyebrow">Token Plan 价值</p>
+              <h2>每项目资源消耗</h2>
+              <div class="donut" aria-label="Token 使用构成">
+                <span>3M</span>
+              </div>
+              <div class="legend">
+                <span><i class="c1"></i>需求理解 28%</span>
+                <span><i class="c2"></i>方案生成 34%</span>
+                <span><i class="c3"></i>代码测试 38%</span>
+              </div>
+            </section>
+            <section class="panel wide">
+              <p class="eyebrow">质量追踪</p>
+              <h2>评审前可见风险</h2>
+              <div class="risk-table" id="riskTable"></div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
